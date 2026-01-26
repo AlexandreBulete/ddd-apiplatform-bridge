@@ -1,0 +1,29 @@
+{
+    "name": "alexandrebulete/ddd-apiplatform-bridge",
+    "description": "API Platform bridge for DDD Foundation - Pure PHP, no framework dependency",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexandre Bulete"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "alexandrebulete/ddd-foundation": "^1.1",
+        "api-platform/core": "^4.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "AlexandreBulete\\DddApiPlatformBridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AlexandreBulete\\DddApiPlatformBridge\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+
