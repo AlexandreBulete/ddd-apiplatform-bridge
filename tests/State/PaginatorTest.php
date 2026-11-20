@@ -35,16 +35,26 @@ final class PaginatorTest extends TestCase
             itemsPerPage: 2,
         );
 
-        $paginator = Paginator::fromDomain($domain, static fn (\stdClass $model): \ArrayObject => new \ArrayObject(['id' => $model->id]));
+        $paginator = Paginator::fromDomain($domain, static fn (\stdClass $model): Resource => new Resource($model->id));
 
         self::assertSame(2.0, $paginator->getCurrentPage());
         self::assertSame(2.0, $paginator->getItemsPerPage());
         self::assertSame(2.0, $paginator->getLastPage());
         self::assertSame(3.0, $paginator->getTotalItems());
         self::assertCount(1, $paginator);
-        self::assertSame([['id' => 3]], array_map(
-            static fn (\ArrayObject $resource): array => $resource->getArrayCopy(),
+        self::assertSame([3], array_map(
+            static fn (Resource $resource): mixed => $resource->id,
             iterator_to_array($paginator, false),
         ));
+    }
+}
+
+/**
+ * @internal
+ */
+final readonly class Resource
+{
+    public function __construct(public mixed $id)
+    {
     }
 }
