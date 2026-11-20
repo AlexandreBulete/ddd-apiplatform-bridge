@@ -4,6 +4,8 @@ API Platform bridge for DDD Foundation. Provides State providers, processors, an
 
 **Pure PHP** - No framework dependency. Can be used with Symfony or Laravel (future).
 
+Requires PHP 8.4+ and `api-platform/state` 4.2 or 5.x.
+
 ## Installation
 
 ```bash
@@ -27,38 +29,28 @@ src/
 
 ### Paginator
 
-A generic paginator implementing API Platform's `PaginatorInterface`:
+Implements API Platform's `PaginatorInterface`. The page is materialised once,
+so `count()` and iteration never exhaust a generator.
+
+`Paginator::fromDomain()` adapts a page returned by a Domain repository
+(`DddFoundation\Domain\Repository\PaginatorInterface`) and maps each model to
+its API resource — the API never exposes Domain objects:
 
 ```php
 use AlexandreBulete\DddApiPlatformBridge\State\Paginator;
-use AlexandreBulete\DddFoundation\Application\Query\QueryBusInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
 
-class GetPostsProvider implements ProviderInterface
+/** @implements ProviderInterface<PostResource> */
+final readonly class PostCollectionProvider implements ProviderInterface
 {
-    public function __construct(
-        private QueryBusInterface $queryBus,
-    ) {}
+    public function __construct(private QueryBusInterface $queryBus) {}
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): Paginator
     {
-        $repository = $this->queryBus->ask(new GetPostsQuery(
-            page: $context['filters']['page'] ?? 1,
-            itemsPerPage: $context['filters']['itemsPerPage'] ?? 30,
-        ));
+        $page = $this->queryBus->ask(new ListPublishedPosts(page: (int) ($context['filters']['page'] ?? 1)));
 
-        $paginator = $repository->paginator();
-
-        if (null === $paginator) {
-            return iterator_to_array($repository);
-        }
-
-        return new Paginator(
-            items: $paginator,
-            currentPage: $paginator->getCurrentPage(),
-            itemsPerPage: $paginator->getItemsPerPage(),
-            lastPage: $paginator->getLastPage(),
-            totalItems: $paginator->getTotalItems(),
-        );
+        return Paginator::fromDomain($page, PostResource::fromModel(...));
     }
 }
 ```
