@@ -1,3 +1,12 @@
+## [1.1.1] - 2026-11-20
+
+### 📚 Documentation
+
+- Update CHANGELOG.md for 1.1.0
+
+### 🧪 Testing
+
+- Paginator test passes on lowest dependencies
 ## [1.1.0] - 2026-11-20
 
 ### 🚀 Features
